@@ -1,0 +1,35 @@
+@model VehicleRentalSystem.Models.Customer
+@{
+    ViewData["Title"]             = "Delete Customer";
+    ViewData["BreadcrumbParent"]  = "Customers";
+    ViewData["BreadcrumbCurrent"] = "Delete";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm border-top border-danger border-3">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-person-x-fill text-danger fs-1 mb-3 d-block"></i>
+                <h5 class="fw-bold mb-1">Delete Customer?</h5>
+                <p class="text-muted mb-4">This will soft-delete the customer record.</p>
+                <div class="alert alert-light border text-start mb-4">
+                    <table class="table table-sm mb-0">
+                        <tr><th>NIC</th><td>@Model.NIC</td></tr>
+                        <tr><th>Name</th><td>@Model.Name</td></tr>
+                        <tr><th>Mobile</th><td>@Model.MobilePhoneNumber</td></tr>
+                    </table>
+                </div>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.NIC" />
+                    <button type="submit" class="btn btn-danger px-4 me-2">
+                        <i class="bi bi-trash me-1"></i>Yes, Delete
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg me-1"></i>Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

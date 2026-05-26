@@ -1,0 +1,62 @@
+@* Account/Register.cshtml *@
+@model VehicleRentalSystem.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"]             = "Register User";
+    ViewData["BreadcrumbParent"]  = "User Management";
+    ViewData["BreadcrumbCurrent"] = "Register";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <h5 class="fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Register New User</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="FullName" class="form-label fw-semibold"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Full Name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="user@vrms.lk" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold"></label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Role" class="form-label fw-semibold"></label>
+                            <select asp-for="Role" class="form-select">
+                                <option value="Admin">Admin – Full access</option>
+                                <option value="Staff" selected>Staff – Limited access</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-person-check me-1"></i>Create User
+                        </button>
+                        <a asp-action="UserList" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

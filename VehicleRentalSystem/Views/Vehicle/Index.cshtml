@@ -1,0 +1,139 @@
+@model VehicleRentalSystem.ViewModels.VehicleSearchViewModel
+@using VehicleRentalSystem.Models
+@{
+    ViewData["Title"]             = "Vehicles";
+    ViewData["BreadcrumbCurrent"] = "Vehicles";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-car-front me-2 text-primary"></i>Vehicle Management</h4>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add Vehicle
+        </a>
+    }
+</div>
+
+<!-- Search / Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Plate Number</label>
+                <input name="plate" class="form-control" placeholder="e.g. CAA-1234" value="@Model.PlateNumber" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Manufacturer</label>
+                <input name="manufacturer" class="form-control" placeholder="e.g. Toyota" value="@Model.Manufacturer" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Model</label>
+                <input name="model" class="form-control" placeholder="e.g. Corolla" value="@Model.Model" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    @foreach (VehicleAvailabilityStatus s in Enum.GetValues(typeof(VehicleAvailabilityStatus)))
+                    {
+                        <option value="@((int)s)" selected="@(Model.Status == s)">@s</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1"><i class="bi bi-search me-1"></i>Search</button>
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between">
+        <span class="fw-semibold text-muted">@Model.Results.Count() vehicle(s) found</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Plate No.</th>
+                        <th>Manufacturer</th>
+                        <th>Model</th>
+                        <th>Year</th>
+                        <th>Daily Rate</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model.Results)
+                    {
+                        <tr>
+                            <td><span class="badge bg-dark fs-6">@v.PlateNumber</span></td>
+                            <td class="fw-semibold">@v.Manufacturer</td>
+                            <td>@v.Model</td>
+                            <td>@v.Year</td>
+                            <td>LKR @v.DailyRate.ToString("N0")</td>
+                            <td>
+                                <small>@(v.Location?.Address ?? "–")</small>
+                            </td>
+                            <td>
+                                @{
+                                    var (statusClass, icon) = v.AvailabilityStatus switch
+                                    {
+                                        VehicleAvailabilityStatus.Available        => ("bg-success", "bi-check-circle"),
+                                        VehicleAvailabilityStatus.Reserved         => ("bg-warning text-dark", "bi-calendar-check"),
+                                        VehicleAvailabilityStatus.UnderMaintenance => ("bg-danger", "bi-tools"),
+                                        _                                           => ("bg-secondary", "bi-question")
+                                    };
+                                }
+                                <span class="badge @statusClass">
+                                    <i class="bi @icon me-1"></i>@v.AvailabilityStatus
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@v.PlateNumber"
+                                       class="btn btn-outline-info" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@v.PlateNumber"
+                                           class="btn btn-outline-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@v.PlateNumber"
+                                           class="btn btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                    @if (v.AvailabilityStatus == VehicleAvailabilityStatus.Available)
+                                    {
+                                        <a asp-controller="Reservation" asp-action="Create"
+                                           asp-route-plateNumber="@v.PlateNumber"
+                                           class="btn btn-outline-success" title="Reserve">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Results.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-search fs-1 d-block mb-2"></i>No vehicles found.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

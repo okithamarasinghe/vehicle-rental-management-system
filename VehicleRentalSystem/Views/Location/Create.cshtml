@@ -1,0 +1,44 @@
+@* Location/Create.cshtml *@
+@model VehicleRentalSystem.ViewModels.LocationViewModel
+@{
+    ViewData["Title"]             = "Add Location";
+    ViewData["BreadcrumbParent"]  = "Locations";
+    ViewData["BreadcrumbCurrent"] = "Add";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <h5 class="fw-bold"><i class="bi bi-plus-circle me-2 text-primary"></i>Add New Location</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Address" class="form-control" rows="3"
+                                  placeholder="Full address of the rental location"></textarea>
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ContactNumber" class="form-label fw-semibold"></label>
+                        <input asp-for="ContactNumber" class="form-control" placeholder="e.g. +94112345678" />
+                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i>Save Location
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

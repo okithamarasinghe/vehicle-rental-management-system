@@ -1,0 +1,114 @@
+@model VehicleRentalSystem.Models.Vehicle
+@using VehicleRentalSystem.Models
+@{
+    ViewData["Title"]             = $"Vehicle – {Model.PlateNumber}";
+    ViewData["BreadcrumbParent"]  = "Vehicles";
+    ViewData["BreadcrumbCurrent"] = Model.PlateNumber;
+}
+
+<div class="row g-4">
+    <!-- Info Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center pt-4">
+                <div class="vehicle-icon-circle mb-3">
+                    <i class="bi bi-car-front-fill fs-1 text-primary"></i>
+                </div>
+                <h4 class="fw-bold">@Model.Manufacturer @Model.Model</h4>
+                <span class="badge bg-dark fs-6 mb-2">@Model.PlateNumber</span>
+                <div class="mb-3">
+                    @{
+                        var (cls, ico) = Model.AvailabilityStatus switch
+                        {
+                            VehicleAvailabilityStatus.Available        => ("bg-success", "bi-check-circle"),
+                            VehicleAvailabilityStatus.Reserved         => ("bg-warning text-dark", "bi-calendar-check"),
+                            VehicleAvailabilityStatus.UnderMaintenance => ("bg-danger", "bi-tools"),
+                            _                                           => ("bg-secondary", "bi-question")
+                        };
+                    }
+                    <span class="badge @cls fs-6"><i class="bi @ico me-1"></i>@Model.AvailabilityStatus</span>
+                </div>
+                <table class="table table-sm text-start">
+                    <tr><th>Year</th><td>@Model.Year</td></tr>
+                    <tr><th>Daily Rate</th><td>LKR @Model.DailyRate.ToString("N2")</td></tr>
+                    <tr><th>Location</th><td>@(Model.Location?.Address ?? "–")</td></tr>
+                    <tr><th>Contact</th><td>@(Model.Location?.ContactNumber ?? "–")</td></tr>
+                    <tr><th>Added</th><td>@Model.CreatedAt.ToString("dd MMM yyyy")</td></tr>
+                </table>
+                <div class="d-grid gap-2 mt-2">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.PlateNumber" class="btn btn-warning">
+                            <i class="bi bi-pencil me-1"></i>Edit Vehicle
+                        </a>
+                    }
+                    @if (Model.AvailabilityStatus == VehicleAvailabilityStatus.Available)
+                    {
+                        <a asp-controller="Reservation" asp-action="Create" asp-route-plateNumber="@Model.PlateNumber"
+                           class="btn btn-success">
+                            <i class="bi bi-calendar-plus me-1"></i>Create Reservation
+                        </a>
+                    }
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservations -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-calendar-week me-2 text-primary"></i>
+                    Reservation History (@Model.Reservations.Count)
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th><th>Customer</th><th>Start</th><th>End</th><th>Days</th><th>Price</th><th>Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.Reservations.OrderByDescending(r => r.RentalStartDate))
+                            {
+                                <tr>
+                                    <td><a asp-controller="Reservation" asp-action="Details" asp-route-id="@r.ReservationID">#@r.ReservationID</a></td>
+                                    <td>
+                                        <a asp-controller="Customer" asp-action="Details" asp-route-id="@r.CustomerNIC">
+                                            @(r.Customer?.Name ?? r.CustomerNIC)
+                                        </a>
+                                    </td>
+                                    <td>@r.RentalStartDate.ToString("dd MMM yyyy")</td>
+                                    <td>@r.RentalEndDate.ToString("dd MMM yyyy")</td>
+                                    <td>@r.RentalDays</td>
+                                    <td>LKR @r.Price.ToString("N0")</td>
+                                    <td>
+                                        @{
+                                            var pb = r.PaymentStatus switch
+                                            {
+                                                PaymentStatus.Paid     => "bg-success",
+                                                PaymentStatus.Refunded => "bg-secondary",
+                                                _                      => "bg-warning text-dark"
+                                            };
+                                        }
+                                        <span class="badge @pb">@r.PaymentStatus</span>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Reservations.Any())
+                            {
+                                <tr><td colspan="7" class="text-center text-muted py-4">No reservations found.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

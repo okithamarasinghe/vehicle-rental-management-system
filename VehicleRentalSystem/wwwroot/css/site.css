@@ -1,0 +1,125 @@
+/* ============================================================
+   VehicleRent Pro – site.css
+   Bootstrap 5 override + component styles
+   ============================================================ */
+
+/* ── Root variables ─────────────────────────────────────────── */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-bg: #1a2332;
+    --sidebar-hover: rgba(255,255,255,.08);
+    --sidebar-active: #0d6efd;
+}
+
+/* ── Layout: Sidebar + Content ──────────────────────────────── */
+#wrapper { min-height: 100vh; }
+
+#sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    flex-shrink: 0;
+    transition: width .25s ease;
+}
+
+#page-content-wrapper {
+    min-width: 0;
+    overflow-x: hidden;
+}
+
+/* Collapsed sidebar */
+#wrapper.sidebar-collapsed #sidebar { width: 70px; }
+#wrapper.sidebar-collapsed #sidebar span,
+#wrapper.sidebar-collapsed #sidebar small,
+#wrapper.sidebar-collapsed #sidebar .fs-5 { display: none; }
+#wrapper.sidebar-collapsed #sidebar .nav-link { justify-content: center; padding: .6rem 0; }
+
+/* ── Sidebar nav links ──────────────────────────────────────── */
+#sidebar .nav-link {
+    border-radius: 8px;
+    padding: .55rem .9rem;
+    font-size: .9rem;
+    transition: background .15s;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    white-space: nowrap;
+}
+#sidebar .nav-link:hover  { background: var(--sidebar-hover); }
+#sidebar .nav-link.active { background: var(--sidebar-active); font-weight: 600; }
+
+/* ── KPI Cards ──────────────────────────────────────────────── */
+.kpi-card { border-left: 4px solid transparent; transition: transform .15s, box-shadow .15s; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12) !important; }
+.kpi-primary { border-left-color: #0d6efd; }
+.kpi-success { border-left-color: #198754; }
+.kpi-warning { border-left-color: #ffc107; }
+.kpi-danger  { border-left-color: #dc3545; }
+
+.kpi-icon {
+    width: 58px; height: 58px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.kpi-value { font-size: 1.6rem; font-weight: 700; line-height: 1.1; color: #1a2332; }
+.kpi-label { font-size: .78rem; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #6c757d; font-weight: 600; }
+.table td { font-size: .88rem; vertical-align: middle; }
+.table-hover tbody tr:hover { background: rgba(13,110,253,.04); }
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.card { border-radius: 12px; }
+.card-header { border-radius: 12px 12px 0 0 !important; }
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.badge { font-weight: 500; letter-spacing: .02em; border-radius: 6px; }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn { border-radius: 8px; font-weight: 500; }
+.btn-sm { border-radius: 6px; }
+
+/* ── Location icon block ─────────────────────────────────────── */
+.location-icon { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* ── Vehicle / Customer avatars ──────────────────────────────── */
+.vehicle-icon-circle,
+.customer-avatar {
+    width: 90px; height: 90px;
+    background: rgba(13,110,253,.08);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto;
+}
+
+/* ── Form controls ───────────────────────────────────────────── */
+.form-control, .form-select {
+    border-radius: 8px;
+    font-size: .9rem;
+    border-color: #dee2e6;
+    transition: border-color .15s, box-shadow .15s;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+}
+.form-label { font-size: .85rem; margin-bottom: .3rem; }
+
+/* ── Alert autohide ──────────────────────────────────────────── */
+.alert { border-radius: 10px; }
+
+/* ── Scrollbar (Chrome / Edge) ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #888; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    #sidebar { width: 70px; }
+    #sidebar span, #sidebar small, #sidebar .fs-5 { display: none; }
+    #sidebar .nav-link { justify-content: center; padding: .6rem 0; }
+    .kpi-value { font-size: 1.2rem; }
+}

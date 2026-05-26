@@ -1,0 +1,60 @@
+@model VehicleRentalSystem.ViewModels.CustomerViewModel
+@{
+    ViewData["Title"]             = "Edit Customer";
+    ViewData["BreadcrumbParent"]  = "Customers";
+    ViewData["BreadcrumbCurrent"] = "Edit";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <h5 class="fw-bold"><i class="bi bi-person-gear me-2 text-warning"></i>Edit Customer – @Model.OriginalNIC</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="OriginalNIC" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="NIC" class="form-label fw-semibold"></label>
+                            <input asp-for="NIC" class="form-control" />
+                            <span asp-validation-for="NIC" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MobilePhoneNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="MobilePhoneNumber" class="form-control" />
+                            <span asp-validation-for="MobilePhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi bi-save me-1"></i>Save Changes
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

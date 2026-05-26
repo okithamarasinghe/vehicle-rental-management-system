@@ -1,0 +1,98 @@
+@model VehicleRentalSystem.ViewModels.VehicleViewModel
+@using VehicleRentalSystem.Models
+@{
+    bool isEdit = Model.OriginalPlateNumber != null;
+    ViewData["Title"]             = isEdit ? "Edit Vehicle" : "Add Vehicle";
+    ViewData["BreadcrumbParent"]  = "Vehicles";
+    ViewData["BreadcrumbCurrent"] = isEdit ? "Edit" : "Add";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0">
+                <h5 class="fw-bold">
+                    <i class="bi @(isEdit ? "bi-pencil-square" : "bi-plus-circle") me-2 text-primary"></i>
+                    @(isEdit ? "Edit Vehicle" : "Add New Vehicle")
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @Html.AntiForgeryToken()
+                    @if (isEdit)
+                    {
+                        <input type="hidden" asp-for="OriginalPlateNumber" />
+                    }
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="PlateNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="PlateNumber" class="form-control text-uppercase"
+                                   placeholder="e.g. CAA-1234" @(isEdit ? "readonly" : "") />
+                            <span asp-validation-for="PlateNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Manufacturer" class="form-label fw-semibold"></label>
+                            <input asp-for="Manufacturer" class="form-control" placeholder="e.g. Toyota" />
+                            <span asp-validation-for="Manufacturer" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Model" class="form-label fw-semibold"></label>
+                            <input asp-for="Model" class="form-control" placeholder="e.g. Corolla" />
+                            <span asp-validation-for="Model" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Year" class="form-label fw-semibold"></label>
+                            <input asp-for="Year" class="form-control" type="number" min="1900" max="2100" />
+                            <span asp-validation-for="Year" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="DailyRate" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">LKR</span>
+                                <input asp-for="DailyRate" class="form-control" type="number" step="0.01" min="0" />
+                            </div>
+                            <span asp-validation-for="DailyRate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LocationID" class="form-label fw-semibold"></label>
+                            <select asp-for="LocationID" class="form-select">
+                                <option value="">– Select Location –</option>
+                                @foreach (var loc in Model.Locations)
+                                {
+                                    <option value="@loc.LocationID" selected="@(Model.LocationID == loc.LocationID)">
+                                        @loc.Address
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="LocationID" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AvailabilityStatus" class="form-label fw-semibold"></label>
+                            <select asp-for="AvailabilityStatus" class="form-select">
+                                @foreach (VehicleAvailabilityStatus s in Enum.GetValues(typeof(VehicleAvailabilityStatus)))
+                                {
+                                    <option value="@((int)s)" selected="@(Model.AvailabilityStatus == s)">@s</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i>@(isEdit ? "Save Changes" : "Add Vehicle")
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

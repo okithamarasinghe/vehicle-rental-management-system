@@ -1,0 +1,144 @@
+@model VehicleRentalSystem.Models.Reservation
+@using VehicleRentalSystem.Models
+@{
+    ViewData["Title"]             = $"Reservation #{Model.ReservationID}";
+    ViewData["BreadcrumbParent"]  = "Reservations";
+    ViewData["BreadcrumbCurrent"] = $"#{Model.ReservationID}";
+}
+
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-receipt me-2 text-primary"></i>Reservation #@Model.ReservationID
+                </h5>
+                @{
+                    var (pClass, pText) = Model.PaymentStatus switch
+                    {
+                        PaymentStatus.Paid     => ("bg-success", "Paid"),
+                        PaymentStatus.Refunded => ("bg-secondary", "Refunded"),
+                        _                      => ("bg-warning text-dark", "Pending")
+                    };
+                }
+                <span class="badge @pClass fs-6">@pText</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Customer Section -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h6 class="fw-bold text-primary mb-2">
+                                <i class="bi bi-person me-1"></i>Customer
+                            </h6>
+                            <div class="fw-semibold fs-5">@(Model.Customer?.Name ?? Model.CustomerNIC)</div>
+                            <div class="text-muted">NIC: @Model.CustomerNIC</div>
+                            <div class="text-muted">📞 @(Model.Customer?.MobilePhoneNumber ?? "–")</div>
+                            <div class="text-muted small">@(Model.Customer?.Address ?? "")</div>
+                        </div>
+                    </div>
+                    <!-- Vehicle Section -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h6 class="fw-bold text-primary mb-2">
+                                <i class="bi bi-car-front me-1"></i>Vehicle
+                            </h6>
+                            <div class="fw-semibold fs-5">
+                                @(Model.Vehicle != null ? $"{Model.Vehicle.Manufacturer} {Model.Vehicle.Model}" : Model.PlateNumber)
+                            </div>
+                            <div class="text-muted">Plate: <strong>@Model.PlateNumber</strong></div>
+                            <div class="text-muted">Year: @(Model.Vehicle?.Year.ToString() ?? "–")</div>
+                            <div class="text-muted small">📍 @(Model.Vehicle?.Location?.Address ?? "–")</div>
+                        </div>
+                    </div>
+                    <!-- Dates -->
+                    <div class="col-12">
+                        <div class="p-3 border rounded-3">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="text-muted small">Start Date</div>
+                                    <div class="fw-bold fs-5">@Model.RentalStartDate.ToString("dd MMM yyyy")</div>
+                                </div>
+                                <div class="col-4 border-start border-end">
+                                    <div class="text-muted small">Duration</div>
+                                    <div class="fw-bold fs-5 text-primary">@Model.RentalDays Days</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-muted small">End Date</div>
+                                    <div class="fw-bold fs-5">@Model.RentalEndDate.ToString("dd MMM yyyy")</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pricing -->
+                    <div class="col-12">
+                        <div class="p-3 bg-success bg-opacity-10 rounded-3 border border-success border-opacity-25">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Total Price</div>
+                                    <div class="fw-bold fs-3 text-success">LKR @Model.Price.ToString("N2")</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small">Daily Rate</div>
+                                    <div class="fw-semibold">LKR @(Model.Vehicle?.DailyRate.ToString("N0") ?? "–")/day</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded-3">
+                                <div class="text-muted small mb-1">Notes</div>
+                                <div>@Model.Notes</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a asp-action="Edit" asp-route-id="@Model.ReservationID" class="btn btn-warning">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    @if (Model.IsActive)
+                    {
+                        <a asp-action="Cancel" asp-route-id="@Model.ReservationID" class="btn btn-danger">
+                            <i class="bi bi-x-circle me-1"></i>Cancel Reservation
+                        </a>
+                    }
+                    <!-- Payment status quick update -->
+                    @if (Model.PaymentStatus == PaymentStatus.Pending)
+                    {
+                        <button class="btn btn-success" onclick="updatePayment(@Model.ReservationID, 2)">
+                            <i class="bi bi-cash-coin me-1"></i>Mark as Paid
+                        </button>
+                    }
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-auto">
+                        <i class="bi bi-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+
+                <div class="mt-3 text-muted small">
+                    Created: @Model.CreatedAt.ToString("dd MMM yyyy HH:mm") UTC |
+                    Updated: @Model.UpdatedAt.ToString("dd MMM yyyy HH:mm") UTC
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+async function updatePayment(id, status) {
+    if (!confirm('Mark this reservation as Paid?')) return;
+    const res = await fetch(`/Reservation/UpdatePayment?id=${id}&status=${status}`, { method: 'POST',
+        headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '' }
+    });
+    const data = await res.json();
+    if (data.success) { location.reload(); }
+    else { alert(data.message); }
+}
+</script>
+@Html.AntiForgeryToken()
+}

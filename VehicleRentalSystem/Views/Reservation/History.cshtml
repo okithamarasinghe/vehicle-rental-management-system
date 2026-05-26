@@ -1,0 +1,171 @@
+@model IEnumerable<VehicleRentalSystem.Models.Reservation>
+@using VehicleRentalSystem.Models
+@{
+    ViewData["Title"]             = "Reservation History";
+    ViewData["BreadcrumbParent"]  = "Reservations";
+    ViewData["BreadcrumbCurrent"] = "History";
+    string customerNic = ViewBag.CustomerNIC ?? string.Empty;
+
+    decimal totalSpent     = Model.Where(r => r.PaymentStatus == PaymentStatus.Paid).Sum(r => r.Price);
+    int     totalTrips     = Model.Count();
+    int     activeCount    = Model.Count(r => r.IsActive);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-clock-history me-2 text-primary"></i>Reservation History
+        </h4>
+        @if (!string.IsNullOrWhiteSpace(customerNic))
+        {
+            <p class="text-muted mb-0 mt-1">
+                Customer NIC: <strong>@customerNic</strong>
+                – <a asp-controller="Customer" asp-action="Details" asp-route-id="@customerNic">View Profile</a>
+            </p>
+        }
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" asp-route-customerNic="@customerNic" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i>New Reservation
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-list-ul me-1"></i>All Reservations
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small text-uppercase fw-semibold mb-1">Total Reservations</div>
+            <div class="fw-bold fs-2 text-primary">@totalTrips</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small text-uppercase fw-semibold mb-1">Active</div>
+            <div class="fw-bold fs-2 text-success">@activeCount</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="text-muted small text-uppercase fw-semibold mb-1">Total Paid</div>
+            <div class="fw-bold fs-2 text-warning">LKR @totalSpent.ToString("N0")</div>
+        </div>
+    </div>
+</div>
+
+<!-- History Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#ID</th>
+                        <th>Vehicle</th>
+                        <th>Plate</th>
+                        <th>Location</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Days</th>
+                        <th>Price</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.OrderByDescending(r => r.RentalStartDate))
+                    {
+                        <tr class="@(!r.IsActive ? "opacity-75" : "")">
+                            <td>
+                                <a asp-action="Details" asp-route-id="@r.ReservationID"
+                                   class="fw-bold text-primary">#@r.ReservationID</a>
+                            </td>
+                            <td>
+                                @if (r.Vehicle != null)
+                                {
+                                    <span class="fw-semibold">@r.Vehicle.Manufacturer @r.Vehicle.Model</span>
+                                    <br /><small class="text-muted">@r.Vehicle.Year</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">–</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="Vehicle" asp-action="Details" asp-route-id="@r.PlateNumber">
+                                    <span class="badge bg-dark">@r.PlateNumber</span>
+                                </a>
+                            </td>
+                            <td>
+                                <small class="text-muted">@(r.Vehicle?.Location?.Address ?? "–")</small>
+                            </td>
+                            <td>@r.RentalStartDate.ToString("dd MMM yyyy")</td>
+                            <td>@r.RentalEndDate.ToString("dd MMM yyyy")</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">@r.RentalDays d</span>
+                            </td>
+                            <td class="fw-semibold">LKR @r.Price.ToString("N0")</td>
+                            <td>
+                                @{
+                                    var (pCls, pLbl) = r.PaymentStatus switch
+                                    {
+                                        PaymentStatus.Paid     => ("bg-success",             "Paid"),
+                                        PaymentStatus.Refunded => ("bg-secondary",            "Refunded"),
+                                        _                      => ("bg-warning text-dark",    "Pending")
+                                    };
+                                }
+                                <span class="badge @pCls">@pLbl</span>
+                            </td>
+                            <td>
+                                @if (r.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success">Active</span>
+                                }
+                                else if (r.IsDeleted)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger">Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Completed</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@r.ReservationID"
+                                       class="btn btn-outline-info" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (r.IsActive)
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@r.ReservationID"
+                                           class="btn btn-outline-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Cancel" asp-route-id="@r.ReservationID"
+                                           class="btn btn-outline-danger" title="Cancel">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center text-muted py-5">
+                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                                No reservations found for this customer.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

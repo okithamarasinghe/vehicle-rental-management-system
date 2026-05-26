@@ -1,0 +1,79 @@
+@* Location/Index.cshtml *@
+@model IEnumerable<VehicleRentalSystem.Models.Location>
+@{
+    ViewData["Title"]             = "Locations";
+    ViewData["BreadcrumbCurrent"] = "Locations";
+    string? search = ViewBag.Search;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-primary"></i>Location Management</h4>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add Location
+        </a>
+    }
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-3 align-items-end">
+            <div class="flex-grow-1">
+                <label class="form-label fw-semibold">Search Locations</label>
+                <input name="search" class="form-control" placeholder="Address or contact number…" value="@search" />
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    @foreach (var loc in Model)
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="location-icon bg-primary-subtle rounded-3 p-3">
+                            <i class="bi bi-building fs-3 text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">Location #@loc.LocationID</h6>
+                            <p class="text-muted mb-1 small">
+                                <i class="bi bi-geo-alt me-1"></i>@loc.Address
+                            </p>
+                            <p class="text-muted mb-2 small">
+                                <i class="bi bi-telephone me-1"></i>@loc.ContactNumber
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Details" asp-route-id="@loc.LocationID"
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@loc.LocationID"
+                                       class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@loc.LocationID"
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center text-muted py-5">
+            <i class="bi bi-geo-alt fs-1 d-block mb-2"></i>No locations found.
+        </div>
+    }
+</div>
